@@ -15,30 +15,34 @@ public class TaxFunction {
 	 */
 	
 	
-	public static int calculateTax(int monthlySalary, int otherMonthlyIncome, int numberOfMonthWorking, int deductible, boolean isMarried, int numberOfChildren) {
-		
-		int tax = 0;
-		
-		if (numberOfMonthWorking > 12) {
-			System.err.println("More than 12 month working per year");
-		}
-		
-		if (numberOfChildren > 3) {
-			numberOfChildren = 3;
-		}
-		
-		if (isMarried) {
-			tax = (int) Math.round(0.05 * (((monthlySalary + otherMonthlyIncome) * numberOfMonthWorking) - deductible - (54000000 + 4500000 + (numberOfChildren * 1500000))));
-		}else {
-			tax = (int) Math.round(0.05 * (((monthlySalary + otherMonthlyIncome) * numberOfMonthWorking) - deductible - 54000000));
-		}
-		
-		if (tax < 0) {
-			return 0;
-		}else {
-			return tax;
-		}
-			 
-	}
-	
+	 private static int calculateGrossAnnualIncome(int monthlySalary, int otherMonthlyIncome, int numberOfMonthWorking) {
+        return (monthlySalary + otherMonthlyIncome) * numberOfMonthWorking;
+    }
+
+    private static int calculateNonTaxableIncome(boolean isMarried, int numberOfChildren) {
+        int nonTaxableIncome = 54000000;
+        if (isMarried) {
+            nonTaxableIncome += 4500000;
+        }
+        if (numberOfChildren > 0) {
+            nonTaxableIncome += (numberOfChildren <= 3 ? numberOfChildren : 3) * 4500000;
+        }
+        return nonTaxableIncome;
+    }
+
+    private static int calculateTaxableIncome(int grossAnnualIncome, int deductible, int nonTaxableIncome) {
+        return grossAnnualIncome - deductible - nonTaxableIncome;
+    }
+
+    private static int calculateTax(int taxableIncome) {
+        return (int) Math.round(0.05 * taxableIncome);
+    }
+
+    public static int calculateTax(int monthlySalary, int otherMonthlyIncome, int numberOfMonthWorking, int deductible, boolean isMarried, int numberOfChildren) {
+        int grossAnnualIncome = calculateGrossAnnualIncome(monthlySalary, otherMonthlyIncome, numberOfMonthWorking);
+        int nonTaxableIncome = calculateNonTaxableIncome(isMarried, numberOfChildren);
+        int taxableIncome = calculateTaxableIncome(grossAnnualIncome, deductible, nonTaxableIncome);
+        int tax = calculateTax(taxableIncome);
+        return tax < 0 ? 0 : tax;
+    }
 }
