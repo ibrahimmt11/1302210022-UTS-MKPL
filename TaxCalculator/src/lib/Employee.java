@@ -13,10 +13,7 @@ public class Employee {
 	private String idNumber;
 	private String address;
 	
-	private int yearJoined;
-	private int monthJoined;
-	private int dayJoined;
-	private int monthWorkingInYear;
+	private JoinDate joinDate;
 	
 	private boolean isForeigner;
 	private boolean gender; //true = Laki-laki, false = Perempuan
@@ -37,9 +34,7 @@ public class Employee {
 		this.lastName = lastName;
 		this.idNumber = idNumber;
 		this.address = address;
-		this.yearJoined = yearJoined;
-		this.monthJoined = monthJoined;
-		this.dayJoined = dayJoined;
+		this.joinDate = joinDate;
 		this.isForeigner = isForeigner;
 		this.gender = gender;
 		
@@ -52,7 +47,7 @@ public class Employee {
 	 * Jika pegawai adalah warga negara asing gaji bulanan diperbesar sebanyak 50%
 	 */
 	
-	 private int SalaryIncrease(int baseSalary) {
+	private int calculateForeignerSalaryIncrease(int baseSalary) {
         return (int) (baseSalary * 1.5);
     }
 
@@ -69,7 +64,7 @@ public class Employee {
             throw new IllegalArgumentException("Invalid grade");
         }
 
-        monthlySalary = isForeigner ? SalaryIncrease(baseSalary) : baseSalary;
+        monthlySalary = isForeigner ? calculateForeignerSalaryIncrease(baseSalary) : baseSalary;
     }
 	
 	public void setAnnualDeductible(int deductible) {	
@@ -91,16 +86,17 @@ public class Employee {
 	}
 	
 	public int getAnnualIncomeTax() {
-		
-		//Menghitung berapa lama pegawai bekerja dalam setahun ini, jika pegawai sudah bekerja dari tahun sebelumnya maka otomatis dianggap 12 bulan.
+
 		LocalDate date = LocalDate.now();
-		
-		if (date.getYear() == yearJoined) {
-			monthWorkingInYear = date.getMonthValue() - monthJoined;
-		}else {
+	
+		int monthWorkingInYear;
+		if (date.getYear() == joinDate.getYear()) {
+			monthWorkingInYear = date.getMonthValue() - joinDate.getMonth().getValue();
+		} else {
 			monthWorkingInYear = 12;
 		}
-		
+	
 		return TaxFunction.calculateTax(monthlySalary, otherMonthlyIncome, monthWorkingInYear, annualDeductible, spouseIdNumber.equals(""), childIdNumbers.size());
 	}
+	
 }
